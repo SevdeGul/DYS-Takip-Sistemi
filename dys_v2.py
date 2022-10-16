@@ -1,7 +1,9 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.options import Options
 import time
 import argparse
+from win10toast import ToastNotifier
 
 def komut_alma():
     parser = argparse.ArgumentParser(description="DYS Uygulaması")
@@ -16,7 +18,9 @@ def komut_alma():
 
 def giris():
     path = 'geckodriver.exe'
-    browser = webdriver.Firefox(executable_path=path)
+    options = Options()
+    options.add_argument("--headless")
+    browser = webdriver.Firefox(firefox_options=options, executable_path=path)
     browser.get("https://dys.mu.edu.tr/login/index_auth.php")
     time.sleep(5)
     kullanici = browser.find_element(By.XPATH, "/html/body/div[2]/div/div[2]/section/div/div[2]/form[2]/div[1]/input")
@@ -30,34 +34,43 @@ def giris():
     return browser
 
 def ders_secimi():
-    browser = giris()
-    time.sleep(2)
-    ders_kutucugu = browser.find_element(By.XPATH, "/html/body/div[2]/div[3]/div/div/section/div/div[2]/div")
-    dersler = ders_kutucugu.find_elements(By.CLASS_NAME, "coursebox")
+    while True:
+        browser = giris()
+        time.sleep(2)
+        ders_kutucugu = browser.find_element(By.XPATH, "/html/body/div[2]/div[3]/div/div/section/div/div[2]/div")
+        dersler = ders_kutucugu.find_elements(By.CLASS_NAME, "coursebox")
 
-    ders_bilgileri = []
-    for ders in dersler:
-        ders_a_tag = ders.find_element(By.CLASS_NAME, "aalink")
+        ders_bilgileri = []
+        for ders in dersler:
+            ders_a_tag = ders.find_element(By.CLASS_NAME, "aalink")
 
-        ders_adi = ders_a_tag.text
-        ders_kodu = ders_adi.split(":")[0]
-        #dosya(ders_kodu)
+            ders_adi = ders_a_tag.text
+            ders_kodu = ders_adi.split(":")[0]
+            #dosya(ders_kodu)
 
-        ders_link = ders_a_tag.get_attribute("href")
-        ders_bilgileri.append((ders_kodu,ders_link))
+            ders_link = ders_a_tag.get_attribute("href")
+            ders_bilgileri.append((ders_kodu,ders_link))
 
-    for ders in ders_bilgileri:
-        fark = karsilastir(browser,ders[0],ders[1])
-        if fark == False:
-            ders_icerigi = ders_icerigi_cek(browser, ders[1])
-            dosya_yazma(ders[0], ders_icerigi)
-            print("%s güncellendi! - URL: %s" % (ders[0],ders[1]))
+        for ders in ders_bilgileri:
+            fark = karsilastir(browser,ders[0],ders[1])
+            if fark == False:
+                ders_icerigi = ders_icerigi_cek(browser, ders[1])
+                dosya_yazma(ders[0], ders_icerigi)
+                print("%s güncellendi! - URL: %s" % (ders[0],ders[1]))
+                toast = ToastNotifier()
+                toast.show_toast(
+                    "DYS'de Yeni bir güncelleme var!",
+                    "%s güncellendi! - URL: %s" % (ders[0],ders[1]),
+                    duration = 20,
+                    threaded = True,
+                )
 
-    #for element in ders_bilgileri:
-    #    ders_icerigi = ders_icerigi_cek(browser,element[1])
-    #    dosya_yazma(element[0],ders_icerigi)
+        #for element in ders_bilgileri:
+        #    ders_icerigi = ders_icerigi_cek(browser,element[1])
+        #    dosya_yazma(element[0],ders_icerigi)
 
-    browser.close()
+        browser.close()
+        time.sleep(3600)
 
 def karsilastir(browser,ders_kodu,ders_link):
     ders_icerigi = ders_icerigi_cek(browser, ders_link)
