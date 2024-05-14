@@ -1,13 +1,13 @@
 
 # DYS-Takip-Sistemi
 
-Muğla Sıtkı Koçman Üniversitesine ait ders yönetim sayfasında yeni eklenen ders materyallerinin haberini veren bir scriptir.
+Muğla Sıtkı Koçman Üniversitesi'ne ait ders yönetim sayfasında yeni eklenen ders materyallerinin haberini veren bir scriptir.
 
 
 
 ## Detaylar
 
-Scripti ilk kez kullanırken ders dosyalarının oluşturulabilmesi için aşağıdaki satırların yorum satırı olmaktan kurtularılması gerekmektedir.
+Scripti ilk kez kullanırken ders dosyalarının oluşturulabilmesi için aşağıdaki satırların yorum satırı olmaktan kurtarılması gerekmektedir.
 
 `#dosya(ders_kodu)`
 
